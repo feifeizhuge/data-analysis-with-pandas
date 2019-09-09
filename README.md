@@ -109,9 +109,16 @@ Feature_Nan = Features_name[X.isnull().all().values]
 # drop the all columns which value are all Nan
 X.dropna(axis=1, how='all', inplace=True)
 ```
-在剩下的特征中，将值为Nan的数字都替换成零：
+在剩下非Nan的特征中，将值为Nan的数字都替换成零：
 ```python
 # replace the Nan value with naught, because Nan value means no meansure happend
 X.fillna(value=0, inplace=True)
 ```
+将之前因为修改而变得混乱的index重新排列：
+```python
+# drop=True，表示不保留之前的index；原地修改
+X.reset_index(drop=True, inplace=True)
+```
 
+#### 2.3 数据分段
+接下来就是重要的数据分段，因为公交车数据的特殊性，我们要将原始数据，分段成一圈一圈的行驶路程。通过观察所有的特征，我们发现
