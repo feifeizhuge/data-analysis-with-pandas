@@ -121,7 +121,26 @@ X.reset_index(drop=True, inplace=True)
 ```
 
 #### 2.3 数据分段
-接下来就是重要的数据分段，因为公交车数据的特殊性，我们要将原始数据，分段成一圈一圈的行驶路程。通过观察所有的特征，我们发现信号`'Primove - Pick-up position control'` 和分段有很大的关联，下降沿表示车停靠终点站开始充电，上升沿
+接下来就是重要的数据分段，因为公交车数据的特殊性，我们要将原始数据，分段成一圈一圈的行驶路程。
+首先我们先把原始数据的有效时间区间确定，因为传感器是24小时工作，但是发车时间基本上是早上5点到晚上9点：
+```python
+first_nonzero_index = X['Vehicle - Tachograph Speed [km/h]'].nonzero()[0][0]
+last_nonzero_index = X['Vehicle - Tachograph Speed [km/h]'].nonzero()[0][-1]
+X = X[first_nonzero_index:last_nonzero_index]
+```
 
-接下来就是重要的数据分段，因为公交车数据的特殊性，我们要将原始数据，分段成一圈一圈的行驶路程。通过观察所有的特征，我们发现信号`'Primove - Pick-up position control'` 和分段有很大的关联，下降沿表示车停靠终点站开始充电，上升样表示充电结束，进入下一次的行驶。
-![Primove - Pick-up position control](https://github.com/feifeizhuge/data-analysis-with-pandas/blob/master/data-cleaning/control_signal_segmentation.png Pick-up position control)
+通过观察所有的特征，我们发现信号`'Primove - Pick-up position control'` 和分段有很大的关联，下降沿表示车停靠终点站开始充电，上升沿表示充电结束，进入下一次的行驶。
+![Image](https://github.com/feifeizhuge/data-analysis-with-pandas/blob/master/data-cleaning/control_signal_segmentation.png)
+
+通过一个均值滑动窗可以求得上下沿变化时的，突变点的位置，在途中可以观察到：
+```python
+# rolling_size表示滑动窗口的大小，这里取2；min_periods表示计算时的最小数据量
+mean_value = signal.rolling(rolling_size, min_periods = 1).mean()
+```
+在这里插入一下，有时候`'Primove - Pick-up position control'`信号会有毛刺，所以我用到了中值滤波对信号`'Primove - Pick-up position control'`进行了预处理：
+```python
+# 中值滤波的窗口这里取为5，也可以适当大放大
+X['Primove - Pick-up position control'] = signal.medfilt(X['Primove - Pick-up position control'], 5)
+```
+接下来提取到每个分段节点的下标，就可以对数据进行初步的分段了。
+
