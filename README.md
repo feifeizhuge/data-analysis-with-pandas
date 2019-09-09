@@ -121,4 +121,7 @@ X.reset_index(drop=True, inplace=True)
 ```
 
 #### 2.3 数据分段
-接下来就是重要的数据分段，因为公交车数据的特殊性，我们要将原始数据，分段成一圈一圈的行驶路程。通过观察所有的特征，我们发现
+接下来就是重要的数据分段，因为公交车数据的特殊性，我们要将原始数据，分段成一圈一圈的行驶路程。通过观察所有的特征，我们发现信号`'Primove - Pick-up position control'` 和分段有很大的关联，下降沿表示车停靠终点站开始充电，上升沿
+
+接下来就是重要的数据分段，因为公交车数据的特殊性，我们要将原始数据，分段成一圈一圈的行驶路程。通过观察所有的特征，我们发现信号`'Primove - Pick-up position control'` 和分段有很大的关联，下降沿表示车停靠终点站开始充电，上升样表示充电结束，进入下一次的行驶。
+![Primove - Pick-up position control](https://github.com/feifeizhuge/data-analysis-with-pandas/blob/master/data-cleaning/control_signal_segmentation.png Pick-up position control)
